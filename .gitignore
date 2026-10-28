@@ -1,0 +1,7 @@
+.venv/
+data/
+models/
+logs/
+.dvc/config.local
+.env
+__pycache__/
