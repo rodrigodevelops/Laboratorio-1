@@ -1,4 +1,4 @@
 [core]
     remote = origin
 ['remote "origin"']
-    url = gdrive://1K69QIcOdgQotmt6mF5iyiRy86pKGReDX
+    url = https://dagshub.com/rodrigodevelops/Laboratorio-1.dvc

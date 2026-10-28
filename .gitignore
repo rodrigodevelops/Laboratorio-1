@@ -1,5 +1,6 @@
 .venv/
-data/
+data/*
+!data/*.dvc
 models/
 logs/
 .dvc/config.local
