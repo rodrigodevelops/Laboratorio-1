@@ -1,0 +1,43 @@
+schema: '2.0'
+stages:
+  generar_bandeja:
+    cmd: PYTHONPATH=src python -m inventario.bandeja --config config/params.yaml
+    deps:
+    - path: data/kaggle
+      hash: md5
+      md5: 53330c0085ee4d351c56e940dc13efef.dir
+      size: 124761708
+      nfiles: 7
+    - path: src/inventario/bandeja.py
+      hash: md5
+      md5: d4f8a0bb5e26c43c12fd9583d88f895a
+      size: 11213
+    params:
+      config/params.yaml:
+        bandeja:
+          fecha_inicio: '2017-01-01'
+          fecha_fin: '2017-08-15'
+          semilla: 42
+          retraso_ventas: 1
+          retraso_transacciones: 2
+          retraso_petroleo: 1
+          anticipacion_promociones: 14
+          prob_retraso_extra_transacciones: 0.05
+          retraso_extra_max: 3
+          prob_correccion_ventas: 0.02
+          correccion_min_dias: 3
+          correccion_max_dias: 10
+          fraccion_filas_corregidas: 0.05
+          variacion_correccion: 0.2
+          publicacion_feriados: 12-01
+    outs:
+    - path: data/bandeja
+      hash: md5
+      md5: 56c351fe2dd8e90171e996dac821bb4c.dir
+      size: 23637552
+      nfiles: 835
+    - path: data/historico
+      hash: md5
+      md5: 5ca35bc5356ee5e9f8cc3c706ff10c26.dir
+      size: 154030318
+      nfiles: 6
