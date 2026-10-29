@@ -1,4 +1,6 @@
 [core]
-    remote = origin
+    remote = publico
 ['remote "origin"']
     url = https://dagshub.com/rodrigodevelops/Laboratorio-1.dvc
+['remote "publico"']
+    url = https://huggingface.co/datasets/rodrigoabm/laboratorio-1-dvc/resolve/main
