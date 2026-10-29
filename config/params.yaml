@@ -1,6 +1,47 @@
+rutas:
+  historico: data/historico
+  bandeja: data/bandeja
+  raw: data/raw
+  processed: data/processed
+  published: data/published
+  modelos: models
+  evaluacion: data/evaluacion
+  seguimiento: data/seguimiento
+
 costos:
-  quiebre_por_unidad: 3.0
-  merma_por_unidad: 1.0
+  quiebre_por_unidad: 3.0        # costo de quedarse sin producto
+  merma_por_unidad: 1.0          # costo de que sobre (merma)
+
+producto:
+  dia_corte: 0                   # 0 = lunes
+  horizonte_dias: 14             # se pronostican los días corte+1 .. corte+14
+  dias_cobertura_pedido: 7       # el pedido cubre los días corte+1 .. corte+7
+  cuantiles: [0.1, 0.25, 0.5, 0.75, 0.9]
+  dias_cierre: ["12-25", "01-01"]   # mes-día; se excluyen de features y entrenamiento
+
+modelo:
+  vigente_inicial: baseline      # se usa solo si nunca se ha evaluado
+  n_cortes_entrenamiento: 16     # semanas recientes
+  n_cortes_anio_anterior: 8      # semanas alrededor de la misma fecha del año anterior
+  paso_cortes_dias: 7
+  lgbm:
+    n_estimators: 200
+    learning_rate: 0.05
+    num_leaves: 63
+    min_data_in_leaf: 100
+    feature_fraction: 0.8
+    num_threads: 16
+    semilla: 42
+
+evaluacion:
+  n_cortes_backtest: 3
+  paso_cortes_dias: 7
+  evaluar_cada_semanas: 4
+  mejora_minima_costo: 0.02      # el candidato debe bajar el costo al menos 2 %
+  tolerancia_wape: 0.05          # y no empeorar el WAPE más de 5 %
+
+validacion:
+  retraso_esperado_ventas: 1
 
 bandeja:
   fecha_inicio: "2017-01-01"     # primer día de entregas por la bandeja
