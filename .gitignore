@@ -6,3 +6,5 @@ logs/
 .dvc/config.local
 .env
 __pycache__/
+logs/
+logs/
