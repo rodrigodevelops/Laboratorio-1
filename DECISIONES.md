@@ -316,6 +316,22 @@ para cualquier fecha.
 `LocalExecutor` en lugar de Celery porque las tareas son secuenciales y no hace
 falta un broker.
 
-## 14. Pendientes
+## 14. Versionado de las salidas con DVC
 
-- Versionado con DVC de las salidas (raw, processed, publicados, modelos).
+**Decisión:** la bandeja y la carga histórica son una etapa de `dvc.yaml`
+(`generar_bandeja`), porque se derivan de forma determinista de los datos de
+Kaggle y de `params.yaml`. Las salidas del flujo (`data/raw`, `data/processed`,
+`data/published`, `data/evaluacion`, `data/seguimiento` y `models`) se versionan
+con `dvc add` después de cada ejecución del periodo, y sus archivos `.dvc` se
+integran por Pull Request.
+
+**Alternativa considerada:** que Airflow haga `dvc add`, `dvc push` y `git commit`
+al final de cada día. Se descartó porque `main` está protegida (los commits deben
+pasar por PR), porque mezclaría operaciones de Git con la orquestación, y porque
+haría depender la ejecución del producto de las credenciales del remoto.
+
+**Cómo se rastrea un pedido publicado:** su `manifest.json` registra el commit
+del código, los parámetros usados, el inventario de entregas disponibles al corte
+y el hash del pronóstico. Con ese commit y `dvc checkout` se recupera exactamente
+el mismo estado, y `inventario.cli reproducir` recalcula el corte y compara el
+hash.
