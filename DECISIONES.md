@@ -284,7 +284,38 @@ vigente. Así el seguimiento compara los modelos con ventas reales en operación
   publicado y compara el hash.
 - LightGBM se entrena con semilla fija y `deterministic=True`.
 
-## 13. Pendientes
+## 13. Orquestación con Airflow
 
-- Orquestación con Airflow.
+**Un DAG diario (`motor_reposicion`) con cuatro grupos de tareas:**
+`ingesta_y_validacion` → `es_dia_de_corte` → `pronostico` (evaluar modelos,
+preparar datos, pronosticar y pedir) → `seguimiento`. Los lunes se ejecuta el
+grupo de pronóstico; los demás días se salta y el seguimiento corre igual.
+
+**Alternativa considerada:** un DAG por flujo, conectados por *assets*. Se
+descartó porque el pronóstico del lunes depende de la ingesta de ese mismo día, y
+con DAGs separados el orden no está garantizado durante un backfill. En un solo
+DAG la dependencia es explícita.
+
+**Ejecución sin intervención manual:** el DAG se crea activo, con
+`catchup=True`, `start_date` y `end_date` tomados del periodo de la bandeja en
+`params.yaml`, y `max_active_runs=1` para procesar los días en orden. Al levantar
+Airflow procesa todo el periodo solo.
+
+**Semántica de fechas:** la ejecución con fecha `ds` representa el cierre del día
+`ds` y procesa las entregas con fecha menor o igual a `ds`.
+
+**Los DAGs solo orquestan:** cada tarea llama a una función de `src/inventario`,
+que es la misma que usa la línea de comandos y que cubren las pruebas.
+
+**DAGs manuales de evidencia:** `reproducir_pronostico` recalcula un corte
+publicado y falla si el hash no coincide; `comparar_modelos` corre el backtest
+para cualquier fecha.
+
+**Imagen:** se extiende la imagen oficial `apache/airflow:3.2.2` con LightGBM,
+`libgomp1` y `git` (para registrar el commit en el manifiesto). Se usa
+`LocalExecutor` en lugar de Celery porque las tareas son secuenciales y no hace
+falta un broker.
+
+## 14. Pendientes
+
 - Versionado con DVC de las salidas (raw, processed, publicados, modelos).
