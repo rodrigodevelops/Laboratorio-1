@@ -7,64 +7,10 @@ datos reales no están en Git y el CI no tiene acceso a ellos.
 from dataclasses import replace
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
 from inventario.bandeja import ConfigBandeja, cargar_kaggle, generar, planificar_entregas
-
-TIENDAS = [1, 2]
-FAMILIAS = ["BEVERAGES", "GROCERY I"]
-
-
-@pytest.fixture
-def dir_kaggle(tmp_path: Path) -> Path:
-    d = tmp_path / "kaggle"
-    d.mkdir()
-    rng = np.random.default_rng(0)
-    fechas = pd.date_range("2016-11-01", "2017-02-28")
-    # Igual que en Kaggle, no hay ventas el 25 de diciembre.
-    fechas_venta = fechas[~((fechas.month == 12) & (fechas.day == 25))]
-
-    train = pd.DataFrame(
-        [(f, t, fam) for f in fechas_venta for t in TIENDAS for fam in FAMILIAS],
-        columns=["date", "store_nbr", "family"],
-    )
-    train["sales"] = rng.integers(1, 50, len(train)).astype(float)
-    train["onpromotion"] = rng.integers(0, 3, len(train))
-    train.insert(0, "id", range(len(train)))
-    train.to_csv(d / "train.csv", index=False)
-
-    trans = pd.DataFrame(
-        [(f, t) for f in fechas_venta for t in TIENDAS], columns=["date", "store_nbr"]
-    )
-    trans["transactions"] = rng.integers(100, 500, len(trans))
-    trans.drop(trans.index[::11]).to_csv(d / "transactions.csv", index=False)
-
-    habiles = fechas[fechas.dayofweek < 5]
-    oil = pd.DataFrame({"date": habiles, "dcoilwtico": rng.uniform(40, 60, len(habiles))})
-    oil.loc[3, "dcoilwtico"] = np.nan
-    oil.to_csv(d / "oil.csv", index=False)
-
-    pd.DataFrame(
-        {
-            "date": ["2016-01-01", "2016-12-25", "2017-01-01", "2017-12-25"],
-            "type": "Holiday",
-            "locale": "National",
-            "locale_name": "Ecuador",
-            "description": ["Primer dia", "Navidad", "Primer dia", "Navidad"],
-            "transferred": False,
-        }
-    ).to_csv(d / "holidays_events.csv", index=False)
-
-    pd.DataFrame(
-        {"store_nbr": TIENDAS, "city": "Quito", "state": "Pichincha", "type": "D", "cluster": 13}
-    ).to_csv(d / "stores.csv", index=False)
-
-    # Archivo de Kaggle que el laboratorio no usa: debe ignorarse sin fallar.
-    (d / "test.csv").write_text("id,date\n")
-    return d
-
 
 @pytest.fixture
 def cfg() -> ConfigBandeja:
