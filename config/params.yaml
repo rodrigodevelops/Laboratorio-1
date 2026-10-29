@@ -1,3 +1,20 @@
 costos:
   quiebre_por_unidad: 3.0
   merma_por_unidad: 1.0
+
+bandeja:
+  fecha_inicio: "2017-01-01"     # primer día de entregas por la bandeja
+  fecha_fin: "2017-08-15"        # última fecha de dato, igual para todas las fuentes
+  semilla: 42
+  retraso_ventas: 1              # días después de la fecha del dato
+  retraso_transacciones: 2
+  retraso_petroleo: 1
+  anticipacion_promociones: 14   # días ANTES de la fecha del dato
+  prob_retraso_extra_transacciones: 0.05
+  retraso_extra_max: 3
+  prob_correccion_ventas: 0.02
+  correccion_min_dias: 3
+  correccion_max_dias: 10
+  fraccion_filas_corregidas: 0.05
+  variacion_correccion: 0.2
+  publicacion_feriados: "12-01"  # mes-día del año anterior

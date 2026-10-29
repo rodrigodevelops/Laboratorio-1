@@ -1,0 +1,12 @@
+stages:
+  generar_bandeja:
+    cmd: PYTHONPATH=src python -m inventario.bandeja --config config/params.yaml
+    deps:
+      - data/kaggle
+      - src/inventario/bandeja.py
+    params:
+      - config/params.yaml:
+          - bandeja
+    outs:
+      - data/historico
+      - data/bandeja
