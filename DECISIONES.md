@@ -335,3 +335,28 @@ del código, los parámetros usados, el inventario de entregas disponibles al co
 y el hash del pronóstico. Con ese commit y `dvc checkout` se recupera exactamente
 el mismo estado, y `inventario.cli reproducir` recalcula el corte y compara el
 hash.
+
+## 15. Remoto público de lectura
+
+**Problema:** el equipo docente debe poder recuperar los datos con `dvc pull`.
+DagsHub responde `401 Unauthorized` a las lecturas anónimas de su almacenamiento
+de DVC, incluso en repositorios públicos. Se verificó con este repositorio y con
+un proyecto público ajeno (GenericMappingTools/gmt), aunque la documentación de
+DagsHub indica que los datos de un repositorio público son de lectura pública.
+
+**Decisión:** DagsHub se mantiene como remoto de escritura (`origin`), y se agrega
+como remoto por defecto (`publico`) un espejo de solo lectura en un dataset
+público de Hugging Face. DVC lo lee por HTTP sin autenticación, porque el espejo
+replica la estructura de `.dvc/cache/files`. Se comprobó en un clon limpio, sin
+credenciales: `dvc pull` descargó los datos y el corte 2017-03-06 se reprodujo
+con el mismo hash.
+
+**Alternativas descartadas:**
+- Publicar en `.dvc/config` el token de una cuenta de DagsHub. Deja un secreto en
+  un repositorio público y puede ser revocado por la detección automática de
+  secretos.
+- Pedir al equipo docente que use sus propias cuentas de DagsHub como
+  colaboradores. Agrega pasos manuales y depende de que tengan cuenta.
+
+**Operación:** los datos nuevos se suben con `dvc push -r origin` y luego se
+sincroniza el espejo en Hugging Face.

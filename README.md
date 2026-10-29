@@ -206,7 +206,12 @@ python -m inventario.cli reproducir --corte 2017-01-09
 
 ## Versionado con DVC
 
-Ningún dato ni modelo está en Git. DVC versiona, con remoto en DagsHub:
+Ningún dato ni modelo está en Git. DVC los versiona con dos remotos:
+
+- `publico` (por defecto): espejo de solo lectura en un dataset público de Hugging Face. Permite `dvc pull` **sin credenciales**.
+- `origin`: DagsHub, donde el autor sube los datos.
+
+Archivos versionados:
 
 | Archivo `.dvc` | Contenido |
 |---|---|
@@ -218,26 +223,27 @@ Ningún dato ni modelo está en Git. DVC versiona, con remoto en DagsHub:
 | `models.dvc` | Modelos entrenados y decisiones del vigente |
 | `data/evaluacion.dvc`, `data/seguimiento.dvc` | Reportes |
 
-Para descargar los datos versionados hace falta acceso al remoto:
+Para descargar los datos versionados basta con:
 
 ```bash
-dvc remote modify origin --local auth basic
-dvc remote modify origin --local user <usuario-dagshub>
-dvc remote modify origin --local password <token>
+pip install dvc
 dvc pull
 ```
+
+Se usó un espejo en Hugging Face porque DagsHub exige iniciar sesión para leer su almacenamiento, incluso en repositorios públicos (ver DECISIONES.md, sección 15).
+
+Para subir datos nuevos (solo el autor): `dvc push -r origin` y luego sincronizar el espejo copiando `.dvc/cache/files` al dataset de Hugging Face.
 
 ### Evidencia: reproducción de un pronóstico pasado
 
 Se reprodujo el pronóstico publicado del corte **2017-03-06** en un clon limpio
-del repositorio, a partir de la versión de código y de datos del tag
+del repositorio, sin credenciales, a partir de la versión de código y de datos del tag
 `entrega-lab1`.
 
 ```bash
 git clone https://github.com/rodrigodevelops/Laboratorio-1.git /tmp/reproduccion
 cd /tmp/reproduccion
 git checkout entrega-lab1
-# configurar credenciales del remoto (ver arriba)
 dvc pull data/raw.dvc data/published.dvc
 cat data/published/corte=2017-03-06/manifest.json | head -20
 PYTHONPATH=src python -m inventario.cli reproducir --corte 2017-03-06
